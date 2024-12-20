@@ -6,7 +6,6 @@ class ProductController {
       return response.json({ message: "Ok" });
     } catch (error) {
       next(error);
-      console.log(error);
     }
   }
 }
