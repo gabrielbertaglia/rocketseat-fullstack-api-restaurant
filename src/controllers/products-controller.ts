@@ -4,8 +4,14 @@ import { knex } from "@/database/knex";
 
 class ProductController {
   async index(request: Request, response: Response, next: NextFunction) {
+    const { name } = request.query;
     try {
-      return response.json({ message: "Ok" });
+      const products = await knex<ProductTable>("products")
+        .select()
+        .whereLike("name", `%${name ?? ""}%`)
+        .orderBy("name");
+
+      return response.json({ products });
     } catch (error) {
       next(error);
     }
