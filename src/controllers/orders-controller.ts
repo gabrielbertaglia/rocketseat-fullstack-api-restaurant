@@ -50,6 +50,40 @@ class OrdersController {
       next(error);
     }
   }
+
+  async index(request: Request, response: Response, next: NextFunction) {
+    try {
+      const table_session_id = z
+        .string()
+        .transform((value) => parseInt(value))
+        .refine((value) => !isNaN(value), {
+          message: "Id must be a number",
+        })
+        .parse(request.params.table_session_id);
+
+      const order = await knex<OrderRespository>("orders")
+        .select(
+          "orders.id",
+          "orders.table_session_id",
+          "orders.product_id",
+          "products.name",
+          "orders.price",
+          "orders.quantity",
+          knex.raw("orders.price * orders.quantity as total"),
+          "orders.created_at",
+          "orders.updated_at"
+        )
+        .join("products", "products.id", "orders.product_id")
+        .where({
+          table_session_id,
+        })
+        .orderBy("orders.created_at", "desc");
+
+      return response.json(order);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export { OrdersController };
