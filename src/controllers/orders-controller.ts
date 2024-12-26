@@ -38,7 +38,14 @@ class OrdersController {
         throw new AppError("Product not found", 404);
       }
 
-      return response.status(201).json(prodcuts);
+      await knex<OrderRespository>("orders").insert({
+        table_session_id,
+        product_id,
+        quantity,
+        price: prodcuts.price,
+      });
+
+      return response.status(201).json();
     } catch (error) {
       next(error);
     }
